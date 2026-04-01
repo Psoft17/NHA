@@ -1,0 +1,666 @@
+<!doctype html>
+<html lang="vi" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+* { font-family: 'Baloo 2', cursive; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; margin: 0; overflow: hidden; }
+
+/* ===== ANIMATIONS ===== */
+@keyframes float { 0%,100%{ transform: translateY(0) } 50%{ transform: translateY(-12px) } }
+@keyframes wave { 0%{ transform: translateX(0) } 50%{ transform: translateX(20px) } 100%{ transform: translateX(0) } }
+@keyframes flyBird { 0%{ transform: translate(0,0) rotate(0deg) } 25%{ transform: translate(60px,-20px) rotate(-5deg) } 50%{ transform: translate(120px,0) rotate(0deg) } 75%{ transform: translate(60px,15px) rotate(3deg) } 100%{ transform: translate(0,0) rotate(0deg) } }
+@keyframes wingFlap { 0%,100%{ transform: scaleY(1) } 50%{ transform: scaleY(0.6) } }
+@keyframes sparkle { 0%,100%{ opacity:0; transform:scale(0) } 50%{ opacity:1; transform:scale(1) } }
+@keyframes slideUp { from { opacity:0; transform:translateY(40px) } to { opacity:1; transform:translateY(0) } }
+@keyframes pulse { 0%,100%{ transform:scale(1) } 50%{ transform:scale(1.05) } }
+@keyframes swim { 0%,100%{ transform: translateX(0) rotate(0deg) } 25%{ transform: translateX(15px) rotate(3deg) } 75%{ transform: translateX(-15px) rotate(-3deg) } }
+
+@keyframes bubbleUp {
+  0% { opacity:0; transform: translateY(30px) scale(0.8); }
+  60% { opacity:1; transform: translateY(-5px) scale(1.02); }
+  100% { opacity:1; transform: translateY(0) scale(1); }
+}
+@keyframes oceanWave {
+  0% { transform: translateX(0) translateY(0); }
+  25% { transform: translateX(15px) translateY(-3px); }
+  50% { transform: translateX(0) translateY(0); }
+  75% { transform: translateX(-15px) translateY(-2px); }
+  100% { transform: translateX(0) translateY(0); }
+}
+@keyframes sunPulse {
+  0%,100% { filter: drop-shadow(0 0 8px rgba(255,213,79,0.4)); transform: rotate(0deg); }
+  50% { filter: drop-shadow(0 0 20px rgba(255,213,79,0.7)); transform: rotate(5deg); }
+}
+@keyframes gentleRock {
+  0%,100% { transform: rotate(-2deg); }
+  50% { transform: rotate(2deg); }
+}
+@keyframes slideInLeft { from { opacity:0; transform:translateX(-40px); } to { opacity:1; transform:translateX(0); } }
+@keyframes slideInRight { from { opacity:0; transform:translateX(40px); } to { opacity:1; transform:translateX(0); } }
+@keyframes cardEntrance { 
+  from { opacity:0; transform: perspective(600px) rotateX(15deg) translateY(30px); }
+  to { opacity:1; transform: perspective(600px) rotateX(0) translateY(0); }
+}
+@keyframes tapHint {
+  0%,100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+@keyframes navBounce {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes slideDown {
+  from { opacity:0; transform: translateY(-20px); }
+  to { opacity:1; transform: translateY(0); }
+}
+
+/* ===== SLIDE TRANSITION SYSTEM ===== */
+#slideViewport {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+.slide-panel {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  will-change: transform;
+}
+/* Entering from right (navigate forward) */
+@keyframes slideEnterFromRight {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+/* Exiting to left (navigate forward) */
+@keyframes slideExitToLeft {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-30%); }
+}
+/* Entering from left (navigate back) */
+@keyframes slideEnterFromLeft {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(0); }
+}
+/* Exiting to right (navigate back) */
+@keyframes slideExitToRight {
+  from { transform: translateX(0); }
+  to   { transform: translateX(100%); }
+}
+.slide-enter-right {
+  animation: slideEnterFromRight 0.42s cubic-bezier(0.35,0.9,0.4,1) forwards;
+  z-index: 2;
+}
+.slide-exit-left {
+  animation: slideExitToLeft 0.42s cubic-bezier(0.35,0.9,0.4,1) forwards;
+  z-index: 1;
+}
+.slide-enter-left {
+  animation: slideEnterFromLeft 0.42s cubic-bezier(0.35,0.9,0.4,1) forwards;
+  z-index: 2;
+}
+.slide-exit-right {
+  animation: slideExitToRight 0.42s cubic-bezier(0.35,0.9,0.4,1) forwards;
+  z-index: 1;
+}
+
+.animate-float { animation: float 3s ease-in-out infinite; }
+.animate-wave { animation: wave 4s ease-in-out infinite; }
+.animate-fly { animation: flyBird 6s ease-in-out infinite; }
+.animate-wing { animation: wingFlap 0.8s ease-in-out infinite; }
+.animate-sparkle { animation: sparkle 2s ease-in-out infinite; }
+.animate-slideUp { animation: slideUp 0.6s ease-out forwards; }
+.animate-pulse { animation: pulse 2s ease-in-out infinite; }
+.animate-swim { animation: swim 3s ease-in-out infinite; }
+.animate-bubbleUp { animation: bubbleUp 0.7s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+.animate-oceanWave { animation: oceanWave 5s ease-in-out infinite; }
+.animate-sunPulse { animation: sunPulse 4s ease-in-out infinite; }
+.animate-gentleRock { animation: gentleRock 3s ease-in-out infinite; }
+.animate-slideInLeft { animation: slideInLeft 0.5s ease-out forwards; }
+.animate-slideInRight { animation: slideInRight 0.5s ease-out forwards; }
+.animate-cardEntrance { animation: cardEntrance 0.6s ease-out forwards; }
+.animate-tapHint { animation: tapHint 1.5s ease-in-out infinite; }
+.animate-navBounce { animation: navBounce 2s ease-in-out infinite; }
+.animate-slideDown { animation: slideDown 0.4s ease-out; }
+
+.ocean-gradient { background: linear-gradient(180deg, #87CEEB 0%, #4FC3F7 30%, #0288D1 60%, #01579B 100%); }
+.card-shadow { box-shadow: 0 8px 30px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08); }
+
+.glass {
+  background: rgba(255,255,255,0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.4);
+}
+
+.flashcard { perspective: 1200px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.flashcard-inner {
+  transition: transform 0.6s cubic-bezier(0.4,0,0.2,1);
+  transform-style: preserve-3d;
+  position: relative; width: 100%; height: 100%;
+  will-change: transform;
+}
+.flashcard.flipped .flashcard-inner { transform: rotateY(180deg); }
+.flashcard-front, .flashcard-back {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  position: absolute; width: 100%; height: 100%;
+  border-radius: 1.25rem;
+}
+.flashcard-back { transform: rotateY(180deg); }
+/* Subtle lift on tap – no shimmer */
+.flashcard:active .flashcard-inner { filter: brightness(0.97); }
+
+
+/* ===== CHILD NAV ===== */
+.kid-nav { position:fixed; bottom:0; left:0; right:0; z-index:100; padding:0 0 env(safe-area-inset-bottom,0) 0; }
+.kid-nav-inner { display:flex; align-items:center; justify-content:space-between; padding:8px 10px; background:linear-gradient(180deg,rgba(255,255,255,0) 0%,rgba(255,255,255,0.95) 15%,#fff 100%); }
+.kid-nav-btn { display:flex; flex-direction:column; align-items:center; gap:2px; border:none; background:none; cursor:pointer; transition:transform 0.2s; padding:4px; }
+.kid-nav-btn:active { transform:scale(0.88)!important; }
+.kid-nav-btn.hidden-btn { visibility:hidden; pointer-events:none; }
+.kid-nav-circle { width:52px; height:52px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:24px; color:#fff; box-shadow:0 4px 14px rgba(0,0,0,0.18),inset 0 2px 0 rgba(255,255,255,0.3); transition:transform 0.2s; position:relative; overflow:hidden; }
+.kid-nav-circle::after { content:''; position:absolute; top:0; left:-100%; width:60%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.35),transparent); animation:shimmer 3s ease-in-out infinite; }
+.kid-nav-btn:hover .kid-nav-circle { transform:scale(1.1); }
+.kid-nav-label { font-size:11px; font-weight:700; margin-top:1px; }
+
+.kid-progress-wrap { flex:1; max-width:200px; padding:0 8px; display:flex; flex-direction:column; align-items:center; gap:4px; }
+.kid-progress-bar { width:100%; height:10px; background:#E0E0E0; border-radius:99px; overflow:hidden; box-shadow:inset 0 2px 4px rgba(0,0,0,0.1); }
+.kid-progress-fill { height:100%; border-radius:99px; background:linear-gradient(90deg,#FFD54F,#FF7043,#E91E63); background-size:200% 100%; animation:shimmer 2s linear infinite; transition:width 0.5s cubic-bezier(0.34,1.56,0.64,1); position:relative; }
+.kid-progress-fill::after { content:'⭐'; position:absolute; right:-4px; top:-7px; font-size:16px; filter:drop-shadow(0 1px 2px rgba(0,0,0,0.2)); animation:pulse 1.5s ease-in-out infinite; }
+.kid-progress-text { font-size:11px; font-weight:700; color:#FF7043; }
+
+.drop-zone-hover { background:rgba(66,165,245,0.1)!important; border-color:#42A5F5!important; }
+.sort-card-enter { animation: bubbleUp 0.3s ease-out; }
+.particle { position:absolute; border-radius:50%; pointer-events:none; opacity:0.15; }
+
+/* ===== MOBILE OPTIMIZATIONS ===== */
+@media (max-width:640px) {
+  .mobile-title { font-size:1.3rem!important; line-height:1.3; }
+  .mobile-subtitle { font-size:0.9rem!important; }
+  .mobile-text { font-size:0.82rem!important; }
+  .mobile-heading { font-size:1.15rem!important; }
+  .sort-grid-mobile { grid-template-columns:1fr!important; gap:0.5rem!important; }
+  .sort-zone-mobile { min-height:100px!important; padding:0.6rem!important; }
+  .sort-zone-mobile .zone-header { font-size:0.85rem!important; padding:0.35rem!important; margin-bottom:0.4rem!important; }
+  .flashcard-mobile { height:255px!important; }
+  .exercise-card-mobile { padding:0.6rem!important; }
+  .quiz-btn-mobile { padding:0.55rem!important; font-size:0.78rem!important; }
+  .kid-nav-circle { width:46px; height:46px; font-size:20px; }
+  .kid-nav-label { font-size:10px; }
+  .kid-progress-wrap { max-width:140px; }
+  .card-mobile { padding:0.9rem!important; }
+}
+@media (max-width:380px) {
+  .mobile-title { font-size:1.1rem!important; }
+  .flashcard-mobile { height:225px!important; }
+  .kid-nav-circle { width:42px; height:42px; font-size:18px; }
+  .kid-progress-wrap { max-width:110px; }
+}
+/* Touch feedback for buttons */
+button:active, .kid-nav-btn:active { opacity: 0.82; }
+/* Scrollable inner areas on mobile */
+.slide-panel > div { -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+/* Prevent body scroll bounce */
+html, body { overscroll-behavior: none; touch-action: pan-x; }
+/* Sort cards: tap-friendly on mobile */
+.sort-card-tap {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.sort-card-tap:active { transform: scale(0.95); box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+</style>
+ </head>
+ <body class="h-full">
+  <div id="app" class="h-full w-full overflow-hidden relative">
+   <div id="slideViewport" class="h-full w-full"></div>
+   <div class="kid-nav" id="navBar">
+    <div class="kid-nav-inner">
+     <button id="prevBtn" onclick="navigate(-1)" class="kid-nav-btn">
+       <div class="kid-nav-circle animate-navBounce" style="background:linear-gradient(135deg,#FF7043,#F4511E);">◀</div>
+       <span class="kid-nav-label" style="color:#FF7043;">Trước</span>
+     </button>
+     <div class="kid-progress-wrap">
+       <div class="kid-progress-bar"><div id="progressFill" class="kid-progress-fill" style="width:0%"></div></div>
+       <div id="progressText" class="kid-progress-text"></div>
+     </div>
+     <button id="nextBtn" onclick="navigate(1)" class="kid-nav-btn">
+       <div class="kid-nav-circle animate-navBounce" style="background:linear-gradient(135deg,#42A5F5,#1E88E5);animation-delay:0.3s;">▶</div>
+       <span class="kid-nav-label" style="color:#42A5F5;">Tiếp</span>
+     </button>
+    </div>
+   </div>
+  </div>
+
+  <script>
+let currentSlide = 0;
+let flippedCards = new Set();
+let answeredQuestions = {};
+let sortedCards = { correct: [], wrong: [], mixed: [] };
+let sortingInitialized = false;
+let touchStartX = 0;
+
+const defaultConfig = {
+  main_title: "Chuyến bay khám phá của chim hải âu",
+  subtitle: "Đọc từ kết hợp vận động",
+  background_color: "#87CEEB",
+  surface_color: "#FFFFFF",
+  text_color: "#1A237E",
+  primary_action_color: "#FF7043",
+  secondary_action_color: "#42A5F5"
+};
+let config = {...defaultConfig};
+
+document.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, {passive:true});
+document.addEventListener('touchend', e => {
+  const diff = touchStartX - e.changedTouches[0].screenX;
+  if (Math.abs(diff) > 60) { diff > 0 ? navigate(1) : navigate(-1); }
+}, {passive:true});
+
+function particlesBG(count=6, colors=['#fff']) {
+  return Array.from({length:count}, (_,i) => {
+    const c = colors[i % colors.length], size = 4 + Math.random() * 12;
+    return `<div class="particle animate-float" style="width:${size}px;height:${size}px;background:${c};left:${Math.random()*100}%;top:${Math.random()*80}%;animation-delay:${Math.random()*4}s;"></div>`;
+  }).join('');
+}
+
+const isMobile = () => window.innerWidth < 640;
+
+function seagullSVG(size=80, animate='animate-fly') {
+  return `<svg class="${animate}" width="${size}" height="${size*.6}" viewBox="0 0 120 72"><g><path class="animate-wing" d="M60 35 Q40 10 10 20" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round"/><path class="animate-wing" d="M60 35 Q80 10 110 20" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" style="animation-delay:0.1s"/><ellipse cx="60" cy="38" rx="12" ry="8" fill="#fff"/><ellipse cx="60" cy="38" rx="12" ry="8" fill="#f5f5f5" opacity="0.5"/><circle cx="52" cy="34" r="2" fill="#333"/><path d="M46 36 L40 35 L46 37" fill="#FFB300"/></g></svg>`;
+}
+function sunSVG(size=70) {
+  return `<svg class="animate-sunPulse" width="${size}" height="${size}" viewBox="0 0 80 80"><circle cx="40" cy="40" r="18" fill="#FFD54F"/><g stroke="#FFD54F" stroke-width="3" stroke-linecap="round">${[0,45,90,135,180,225,270,315].map(a=>{const r1=24,r2=34,cx=40,cy=40,rad=a*Math.PI/180;return`<line x1="${cx+r1*Math.cos(rad)}" y1="${cy+r1*Math.sin(rad)}" x2="${cx+r2*Math.cos(rad)}" y2="${cy+r2*Math.sin(rad)}"/>`;}).join('')}</g></svg>`;
+}
+function wavesSVG(color='#0288D1', opacity=0.3) {
+  return `<svg class="animate-oceanWave" width="100%" height="60" viewBox="0 0 400 60" preserveAspectRatio="none" style="opacity:${opacity}"><path d="M0 30 Q50 10 100 30 Q150 50 200 30 Q250 10 300 30 Q350 50 400 30 V60 H0Z" fill="${color}"/></svg>`;
+}
+function cloudSVG(w=100) {
+  return `<svg width="${w}" height="${w*0.5}" viewBox="0 0 120 60"><ellipse cx="60" cy="35" rx="45" ry="20" fill="white" opacity="0.8"/><ellipse cx="40" cy="30" rx="25" ry="18" fill="white" opacity="0.9"/><ellipse cx="80" cy="30" rx="28" ry="16" fill="white" opacity="0.85"/></svg>`;
+}
+function studentSVG(action='wave', size=70) {
+  const h=size;
+  return `<svg width="${h}" height="${h*1.3}" viewBox="0 0 60 78"><circle cx="30" cy="16" r="12" fill="#FFCC80"/><circle cx="25" cy="14" r="1.5" fill="#333"/><circle cx="35" cy="14" r="1.5" fill="#333"/><path d="M27 19 Q30 22 33 19" stroke="#333" stroke-width="1.5" fill="none"/><rect x="20" y="28" width="20" height="25" rx="4" fill="#42A5F5"/><rect x="20" y="53" width="8" height="18" rx="3" fill="#FFCC80"/><rect x="32" y="53" width="8" height="18" rx="3" fill="#FFCC80"/>${action==='wave'?'<line x1="40" y1="35" x2="55" y2="20" stroke="#FFCC80" stroke-width="5" stroke-linecap="round"/><line x1="8" y1="35" x2="20" y2="45" stroke="#FFCC80" stroke-width="5" stroke-linecap="round"/>':action==='fly'?'<line x1="5" y1="30" x2="20" y2="38" stroke="#FFCC80" stroke-width="5" stroke-linecap="round"/><line x1="40" y1="38" x2="55" y2="30" stroke="#FFCC80" stroke-width="5" stroke-linecap="round"/>':'<line x1="10" y1="40" x2="20" y2="35" stroke="#FFCC80" stroke-width="5" stroke-linecap="round"/><line x1="40" y1="35" x2="50" y2="40" stroke="#FFCC80" stroke-width="5" stroke-linecap="round"/>'}</svg>`;
+}
+
+function correctCards() {
+  return [
+    {text:'Hải âu là loài chim sống ở biển', emoji:'🌊', illustration:'bird-sea'},
+    {text:'Hải âu có sải cánh lớn', emoji:'🦅', illustration:'wings'},
+    {text:'Hải âu bay rất xa qua đại dương', emoji:'✈️', illustration:'fly-far'},
+    {text:'Hải âu bơi rất giỏi', emoji:'🏊', illustration:'swim'},
+    {text:'Khi sắp có bão, hải âu bay thành đàn tìm nơi trú ẩn', emoji:'🌪️', illustration:'storm'},
+    {text:'Hải âu là bạn của những người đi biển', emoji:'⛵', illustration:'friend'}
+  ];
+}
+function wrongCards() {
+  return [
+    {text:'Hải âu chỉ đi bộ trên đất', emoji:'🚶', illustration:'walk'},
+    {text:'Khi có bão, hải âu đứng yên một chỗ', emoji:'🧍', illustration:'stand'},
+    {text:'Hải âu bơi rất chậm', emoji:'🐢', illustration:'slow'}
+  ];
+}
+function cardIllustration(type) {
+  const s=isMobile();
+  if(type==='bird-sea') return seagullSVG(s?60:90,'animate-float');
+  if(type==='wings') return `<svg width="${s?70:100}" height="${s?35:50}" viewBox="0 0 120 50"><path d="M60 30 Q30 5 5 20" stroke="#42A5F5" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M60 30 Q90 5 115 20" stroke="#42A5F5" stroke-width="5" fill="none" stroke-linecap="round"/></svg>`;
+  if(type==='fly-far') return seagullSVG(s?55:80,'animate-fly');
+  if(type==='swim') return `<div class="animate-swim">${seagullSVG(s?50:70,'')}</div>`;
+  if(type==='storm') return `<div class="flex gap-1">${seagullSVG(s?28:40,'animate-fly')}${seagullSVG(s?24:35,'animate-fly')}${seagullSVG(s?20:30,'animate-fly')}</div>`;
+  if(type==='friend') return `<div class="flex items-end gap-2">${seagullSVG(s?35:50,'animate-float')}<span class="${s?'text-2xl':'text-3xl'}">⛵</span></div>`;
+  if(type==='walk') return `<span class="${s?'text-3xl':'text-4xl'}">🚶🐦</span>`;
+  if(type==='stand') return `<span class="${s?'text-3xl':'text-4xl'}">🧍🌪️</span>`;
+  if(type==='slow') return `<span class="${s?'text-3xl':'text-4xl'}">🐢🐦</span>`;
+  return '';
+}
+
+const slides = [
+  () => { const s=isMobile(); return `
+  <div class="h-full w-full ocean-gradient flex flex-col items-center justify-center text-center p-4 sm:p-6 pb-24 relative overflow-hidden">
+    ${particlesBG(8,['rgba(255,255,255,0.3)','rgba(255,213,79,0.2)'])}
+    <div class="absolute top-3 sm:top-4 right-4 sm:right-6">${sunSVG(s?55:80)}</div>
+    <div class="absolute top-10 sm:top-12 left-2 sm:left-4 animate-wave">${cloudSVG(s?65:90)}</div>
+    <div class="absolute top-16 sm:top-20 right-12 sm:right-20 animate-wave" style="animation-delay:1s">${cloudSVG(s?50:70)}</div>
+    <div class="absolute top-4 sm:top-6 left-1/3">${seagullSVG(s?65:100)}</div>
+    <div class="absolute top-12 sm:top-16 right-1/4" style="animation-delay:2s">${seagullSVG(s?40:60,'animate-fly')}</div>
+    <div class="relative z-10 animate-bubbleUp">
+      <div class="glass rounded-3xl p-5 sm:p-6 md:p-10 card-shadow max-w-lg mx-auto">
+        <div class="text-3xl sm:text-4xl md:text-5xl mb-2 animate-gentleRock">🐦</div>
+        <h1 class="mobile-title text-2xl md:text-3xl font-extrabold leading-tight mb-3" style="color:#1A237E;">${config.main_title||defaultConfig.main_title}</h1>
+        <p class="mobile-subtitle text-lg md:text-xl font-semibold" style="color:#FF7043;">📖 ${config.subtitle||defaultConfig.subtitle}</p>
+        <div class="mt-4 text-xs sm:text-sm" style="color:#666;">Tiếng Việt lớp 1 – Kết nối tri thức với cuộc sống</div>
+      </div>
+    </div>
+    <div class="absolute bottom-20 left-0 right-0">${wavesSVG('#01579B',0.4)}</div>
+    <div class="absolute bottom-16 left-0 right-0 animate-wave">${wavesSVG('#0277BD',0.3)}</div>
+  </div>`; },
+
+  () => { const s=isMobile(); return `
+  <div class="h-full w-full flex flex-col items-center justify-center p-4 sm:p-6 pb-24 relative overflow-hidden" style="background:linear-gradient(180deg,#E3F2FD 0%,#BBDEFB 50%,#64B5F6 100%);">
+    ${particlesBG(5,['rgba(66,165,245,0.15)','rgba(255,255,255,0.2)'])}
+    <div class="absolute top-3 left-4">${seagullSVG(s?50:70)}</div>
+    <div class="absolute top-6 right-6" style="animation-delay:1.5s">${seagullSVG(s?35:50,'animate-fly')}</div>
+    <div class="absolute top-10 left-1/2" style="animation-delay:3s">${seagullSVG(s?28:40,'animate-fly')}</div>
+    <div class="relative z-10 animate-bubbleUp max-w-lg w-full">
+      <div class="glass rounded-3xl p-5 sm:p-6 md:p-8 card-shadow card-mobile text-center">
+        <div class="text-3xl sm:text-4xl mb-3">🌊✈️</div>
+        <h2 class="mobile-heading text-xl md:text-2xl font-extrabold mb-3" style="color:#1A237E;">Giới thiệu trò chơi</h2>
+        <p class="mobile-text text-base md:text-lg leading-relaxed font-semibold" style="color:#333;">"Hôm nay các em sẽ trở thành những chú <span style="color:#FF7043;">chim hải âu</span> 🐦 cùng bay qua <span style="color:#0288D1;">đại dương</span> 🌊 để khám phá thế giới!"</p>
+        <div class="flex justify-center gap-3 sm:gap-4 mt-4">${studentSVG('fly',s?40:55)} ${studentSVG('wave',s?40:55)} ${studentSVG('fly',s?40:55)}</div>
+      </div>
+    </div>
+    <div class="absolute bottom-20 left-0 right-0 animate-wave">${wavesSVG('#42A5F5',0.3)}</div>
+  </div>`; },
+
+  () => `
+  <div class="h-full w-full flex flex-col items-center justify-center p-4 sm:p-6 pb-24 relative overflow-hidden" style="background:linear-gradient(180deg,#FFF8E1 0%,#FFECB3 100%);">
+    ${particlesBG(4,['rgba(255,183,77,0.15)','rgba(255,112,67,0.1)'])}
+    <div class="relative z-10 animate-bubbleUp max-w-lg w-full">
+      <div class="glass rounded-3xl p-5 sm:p-6 md:p-8 card-shadow card-mobile">
+        <h2 class="mobile-heading text-2xl font-extrabold text-center mb-4" style="color:#FF7043;">🎮 Cách chơi</h2>
+        <div class="space-y-3">${[
+          {icon:'📢',text:'Đọc to nội dung trên thẻ',color:'#42A5F5'},
+          {icon:'👀',text:'Quan sát và suy nghĩ',color:'#66BB6A'},
+          {icon:'🤔',text:'Thực hiện động tác phù hợp',color:'#FF7043'},
+          {icon:'🏃',text:'Cả lớp cùng vận động',color:'#AB47BC'}
+        ].map((s,i)=>`<div class="flex items-center gap-3 p-3 rounded-2xl animate-cardEntrance" style="background:${s.color}12;border-left:4px solid ${s.color};animation-delay:${i*0.12}s;opacity:0;"><span class="text-2xl sm:text-3xl">${s.icon}</span><span class="mobile-text text-base sm:text-lg font-bold" style="color:${s.color};">${s.text}</span></div>`).join('')}</div>
+      </div>
+    </div>
+  </div>`,
+
+  ...correctCards().map((card,idx)=>()=>flashcardSlide(card,idx,true)),
+  ...wrongCards().map((card,idx)=>()=>flashcardSlide(card,idx+6,false)),
+
+  () => `
+  <div class="h-full w-full flex flex-col items-center p-3 sm:p-4 pb-24 overflow-auto" style="background:linear-gradient(180deg,#F3E5F5 0%,#E1BEE7 100%);">
+    <div class="animate-bubbleUp max-w-4xl w-full">
+      <h2 class="mobile-heading text-xl sm:text-2xl font-extrabold text-center mb-1" style="color:#6A1B9A;">🎯 Phân loại đặc điểm của chim hải âu</h2>
+      <p class="text-center text-xs sm:text-sm font-semibold mb-3" style="color:#555;">Nhấn ✅ hoặc ❌ trên mỗi thẻ để phân loại</p>
+      <div class="sort-grid-mobile grid grid-cols-2 gap-2 sm:gap-3 mb-3">
+        <div class="sort-zone-mobile bg-white rounded-2xl p-3 sm:p-4 card-shadow min-h-48 sm:min-h-96" id="correctZone" style="border:3px dashed #4CAF50;background:#F1F8E9;" ondragover="allowDrop(event);this.classList.add('drop-zone-hover')" ondragleave="this.classList.remove('drop-zone-hover')" ondrop="dropCard(event,'correct');this.classList.remove('drop-zone-hover')">
+          <div class="zone-header text-center font-bold text-base sm:text-lg mb-2 p-1.5 sm:p-2 rounded-xl" style="background:#C8E6C9;color:#2E7D32;">✅ ĐÚNG</div>
+          <div class="space-y-2" id="correctList"></div>
+        </div>
+        <div class="sort-zone-mobile bg-white rounded-2xl p-3 sm:p-4 card-shadow min-h-48 sm:min-h-96" id="wrongZone" style="border:3px dashed #F44336;background:#FFEBEE;" ondragover="allowDrop(event);this.classList.add('drop-zone-hover')" ondragleave="this.classList.remove('drop-zone-hover')" ondrop="dropCard(event,'wrong');this.classList.remove('drop-zone-hover')">
+          <div class="zone-header text-center font-bold text-base sm:text-lg mb-2 p-1.5 sm:p-2 rounded-xl" style="background:#FFCDD2;color:#C62828;">❌ SAI</div>
+          <div class="space-y-2" id="wrongList"></div>
+        </div>
+      </div>
+      <div class="bg-white rounded-2xl p-3 sm:p-4 card-shadow mb-3">
+        <p class="text-center font-bold text-sm sm:text-base mb-2" style="color:#6A1B9A;">📌 Các thẻ để phân loại:</p>
+        <div class="flex flex-wrap gap-2 justify-center" id="mixedCards"></div>
+      </div>
+      <div id="sortResult" class="text-center"></div>
+      <div class="flex justify-center gap-2 sm:gap-3 mt-3">
+        <button onclick="resetSort()" class="px-4 sm:px-6 py-2 rounded-full font-bold text-white text-sm sm:text-base" style="background:linear-gradient(135deg,#AB47BC,#8E24AA);box-shadow:0 3px 10px rgba(171,71,188,0.3);">🔄 Làm lại</button>
+        <button onclick="checkSort()" class="px-4 sm:px-6 py-2 rounded-full font-bold text-white text-sm sm:text-base" style="background:linear-gradient(135deg,#42A5F5,#1E88E5);box-shadow:0 3px 10px rgba(66,165,245,0.3);">✓ Kiểm tra</button>
+      </div>
+    </div>
+  </div>`,
+
+  () => `
+  <div class="h-full w-full flex flex-col items-center p-3 sm:p-4 pb-24 overflow-auto" style="background:linear-gradient(180deg,#E8F5E9 0%,#C8E6C9 100%);">
+    ${particlesBG(4,['rgba(76,175,80,0.1)','rgba(139,195,74,0.1)'])}
+    <div class="animate-bubbleUp max-w-lg w-full">
+      <h2 class="mobile-heading text-xl sm:text-2xl font-extrabold text-center mb-3" style="color:#2E7D32;">🤸 Động tác vận động</h2>
+      <div class="space-y-2.5">${[
+        {title:'Sóng biển',desc:'Dang hai tay như cánh chim, lắc nhẹ sang hai bên như sóng biển 🌊',emoji:'🌊'},
+        {title:'Sải cánh lớn',desc:'Dang hai tay thật rộng sang hai bên thể hiện đôi cánh lớn 🦅',emoji:'🦅'},
+        {title:'Bay xa',desc:'Dang tay và chạy bước nhỏ tại chỗ như chim bay xa ✈️',emoji:'✈️'},
+        {title:'Bơi giỏi',desc:'Thực hiện động tác bơi bằng hai tay 🏊',emoji:'🏊'},
+        {title:'Bay thành đàn',desc:'Cả tổ chụm lại, dang tay bay mô phỏng đàn chim 🐦🐦🐦',emoji:'🐦'},
+        {title:'Chào bạn biển',desc:'Dang tay như chim bay, sau đó vẫy tay chào 👋',emoji:'👋'}
+      ].map((m,i)=>`<div class="exercise-card-mobile bg-white rounded-2xl p-3 sm:p-4 card-shadow flex gap-2.5 items-start animate-cardEntrance" style="animation-delay:${i*0.08}s;opacity:0;"><span class="exercise-emoji text-2xl sm:text-3xl">${m.emoji}</span><div class="flex-1 min-w-0"><div class="font-bold text-sm sm:text-base" style="color:#2E7D32;">${m.title}</div><div class="mobile-text text-xs sm:text-sm" style="color:#555;">${m.desc}</div></div></div>`).join('')}</div>
+    </div>
+  </div>`,
+
+  () => `
+  <div class="h-full w-full flex flex-col items-center justify-center p-4 sm:p-6 pb-24" style="background:linear-gradient(180deg,#E8EAF6 0%,#C5CAE9 100%);">
+    ${particlesBG(4,['rgba(63,81,181,0.08)','rgba(121,134,203,0.08)'])}
+    <div class="animate-bubbleUp max-w-lg w-full">
+      <div class="glass rounded-3xl p-4 sm:p-6 card-shadow card-mobile">
+        <h2 class="mobile-heading text-xl sm:text-2xl font-extrabold text-center mb-4" style="color:#283593;">📝 Củng cố kiến thức</h2>
+        <div class="space-y-4">
+          <div class="p-3 sm:p-4 rounded-2xl animate-slideInLeft" style="background:#E3F2FD;animation-delay:0.1s;">
+            <p class="font-bold text-sm sm:text-base mb-2" style="color:#1565C0;">❓ Hải âu có thể bay xa như thế nào?</p>
+            <div class="space-y-2" id="q1">${quizOptions('q1',[{text:'Bay qua đại dương 🌊',correct:true},{text:'Chỉ bay quanh bờ biển',correct:false},{text:'Không biết bay',correct:false}])}</div>
+          </div>
+          <div class="p-3 sm:p-4 rounded-2xl animate-slideInRight" style="background:#FFF3E0;animation-delay:0.25s;">
+            <p class="font-bold text-sm sm:text-base mb-2" style="color:#E65100;">❓ Ngoài bay xa, hải âu còn có khả năng gì?</p>
+            <div class="space-y-2" id="q2">${quizOptions('q2',[{text:'Bơi rất giỏi 🏊',correct:true},{text:'Leo cây rất nhanh',correct:false},{text:'Đào hang dưới đất',correct:false}])}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`,
+
+  () => { const s=isMobile(); return `
+  <div class="h-full w-full flex flex-col items-center justify-center p-4 sm:p-6 pb-24 relative overflow-hidden" style="background:linear-gradient(180deg,#E8F5E9 0%,#A5D6A7 100%);">
+    ${particlesBG(5,['rgba(76,175,80,0.1)','rgba(255,255,255,0.15)'])}
+    <div class="absolute top-4 right-6">${seagullSVG(s?40:60)}</div>
+    <div class="relative z-10 animate-bubbleUp max-w-lg w-full">
+      <div class="glass rounded-3xl p-5 sm:p-6 md:p-8 card-shadow card-mobile text-center">
+        <h2 class="mobile-heading text-xl sm:text-2xl font-extrabold mb-2" style="color:#2E7D32;">🌿 Bảo vệ các loài chim</h2>
+        <p class="font-semibold text-sm sm:text-base mb-3" style="color:#555;">Chúng ta cần làm gì để bảo vệ các loài chim?</p>
+        <div class="space-y-2.5 text-left">${[
+          {emoji:'🚫',text:'Không săn bắt chim'},
+          {emoji:'🌳',text:'Bảo vệ môi trường sống của chim'},
+          {emoji:'💚',text:'Yêu quý thiên nhiên'}
+        ].map((item,i)=>`<div class="flex items-center gap-2.5 p-2.5 sm:p-3 rounded-xl animate-cardEntrance" style="background:#E8F5E9;border-left:3px solid #4CAF50;animation-delay:${i*0.15}s;opacity:0;"><span class="text-xl sm:text-2xl">${item.emoji}</span><span class="font-bold text-sm sm:text-base" style="color:#2E7D32;">${item.text}</span></div>`).join('')}</div>
+        <div class="mt-3 p-2.5 rounded-xl" style="background:#FFF8E1;border:1px dashed #FFB74D;">
+          <p class="text-xs sm:text-sm font-semibold" style="color:#F57F17;">🤸 Vận động: Dang tay bay nhẹ tại chỗ như chim bay trên bầu trời!</p>
+        </div>
+      </div>
+    </div>
+  </div>`; },
+
+  () => { const s=isMobile(); return `
+  <div class="h-full w-full ocean-gradient flex flex-col items-center justify-center p-4 sm:p-6 pb-24 relative overflow-hidden text-center">
+    ${particlesBG(10,['rgba(255,255,255,0.25)','rgba(255,213,79,0.2)','rgba(255,112,67,0.15)'])}
+    <div class="absolute top-3 right-6">${sunSVG(s?50:70)}</div>
+    ${[1,2,3,4,5].map(i=>`<div class="absolute animate-fly" style="top:${5+i*8}%;left:${10+i*15}%;animation-delay:${i*0.8}s;">${seagullSVG(s?25+i*3:40+i*5)}</div>`).join('')}
+    <div class="relative z-10 animate-bubbleUp">
+      <div class="glass rounded-3xl p-6 sm:p-8 md:p-10 card-shadow max-w-lg">
+        <div class="text-4xl sm:text-5xl mb-2 animate-gentleRock">🎉</div>
+        <h2 class="mobile-title text-2xl md:text-3xl font-extrabold mb-2" style="color:#1A237E;">Chúc mừng các em!</h2>
+        <p class="mobile-text text-base sm:text-lg font-semibold mb-3" style="color:#555;">Các em đã hoàn thành chuyến bay khám phá của chim hải âu! 🐦✨</p>
+        <div class="flex justify-center gap-2 sm:gap-3">${studentSVG('wave',s?38:50)} ${studentSVG('fly',s?38:50)} ${studentSVG('wave',s?38:50)}</div>
+        <div class="mt-3 animate-pulse"><span class="text-2xl sm:text-3xl">⭐⭐⭐</span></div>
+      </div>
+    </div>
+    <div class="absolute bottom-20 left-0 right-0 animate-wave">${wavesSVG('#01579B',0.4)}</div>
+  </div>`; }
+];
+
+function flashcardSlide(card, globalIdx, isCorrect) {
+  const bg=isCorrect?'background:linear-gradient(180deg,#E3F2FD 0%,#BBDEFB 100%);':'background:linear-gradient(180deg,#FFF3E0 0%,#FFCCBC 100%);';
+  const frontBg=isCorrect?'#E3F2FD':'#FFF3E0', frontBorder=isCorrect?'#42A5F5':'#FF7043';
+  const backBg=isCorrect?'#C8E6C9':'#FFCDD2', label=isCorrect?'✅ ĐÚNG':'❌ SAI', labelColor=isCorrect?'#2E7D32':'#C62828';
+  const flipped=flippedCards.has(globalIdx);
+  return `
+  <div class="h-full w-full flex flex-col items-center justify-center p-4 sm:p-6 pb-24 relative overflow-hidden" style="${bg}">
+    ${particlesBG(3,[isCorrect?'rgba(66,165,245,0.1)':'rgba(255,112,67,0.1)'])}
+    <div class="text-xs sm:text-sm font-bold mb-2 animate-slideDown" style="color:${isCorrect?'#1565C0':'#E65100'};">Thẻ ${globalIdx+1} / 9 ${!isCorrect?'⚠️':''}</div>
+    <div class="flashcard flashcard-mobile max-w-sm w-full ${flipped?'flipped':''} animate-cardEntrance" style="height:280px;" onclick="flipCard(${globalIdx})">
+      <div class="flashcard-inner">
+        <div class="flashcard-front flex flex-col items-center justify-center p-4 sm:p-6 card-shadow" style="background:${frontBg};border:3px solid ${frontBorder};">
+          <div class="text-3xl sm:text-4xl mb-2 animate-gentleRock">${card.emoji}</div>
+          <p class="mobile-text text-base sm:text-lg md:text-xl font-bold text-center" style="color:#333;">${card.text}</p>
+          <div class="mt-2">${cardIllustration(card.illustration)}</div>
+          <p class="text-xs mt-2 animate-tapHint" style="color:#999;">👆 Nhấn để lật thẻ</p>
+        </div>
+        <div class="flashcard-back flex flex-col items-center justify-center p-4 sm:p-6 card-shadow" style="background:${backBg};border:3px solid ${frontBorder};">
+          <div class="text-2xl sm:text-3xl mb-2">${isCorrect?'🎉':'🤔'}</div>
+          <div class="text-xl sm:text-2xl font-extrabold mb-2" style="color:${labelColor};">${label}</div>
+          <p class="mobile-text text-sm sm:text-base font-semibold text-center" style="color:#333;">${card.text}</p>
+          ${isCorrect?'<p class="mt-2 text-xs sm:text-sm font-semibold" style="color:#2E7D32;">👏 Hãy thực hiện động tác vận động!</p>':'<p class="mt-2 text-xs sm:text-sm font-semibold" style="color:#C62828;">Thông tin này không đúng nhé!</p>'}
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function quizOptions(qId, options) {
+  return options.map((o,i)=>{
+    const answered=answeredQuestions[qId], selected=answered===i;
+    let bg='#fff',border='#ddd',textColor='#333';
+    if(answered!==undefined){if(o.correct){bg='#C8E6C9';border='#4CAF50';textColor='#2E7D32';}else if(selected&&!o.correct){bg='#FFCDD2';border='#F44336';textColor='#C62828';}}
+    return `<button onclick="answerQuiz('${qId}',${i},${o.correct})" class="quiz-btn-mobile w-full text-left p-2.5 sm:p-3 rounded-xl font-bold text-xs sm:text-sm transition-all duration-200" style="background:${bg};border:2px solid ${border};color:${textColor};">${o.text} ${answered!==undefined&&o.correct?'✅':(selected&&!o.correct?'❌':'')}</button>`;
+  }).join('');
+}
+
+function flipCard(idx){
+  if(flippedCards.has(idx))flippedCards.delete(idx);else flippedCards.add(idx);
+  // Re-render only the flashcard inner state without full slide transition
+  const fc = document.querySelector('.flashcard');
+  if(fc){
+    if(flippedCards.has(idx)) fc.classList.add('flipped');
+    else fc.classList.remove('flipped');
+  }
+}
+window.answerQuiz=function(qId,idx,correct){if(answeredQuestions[qId]!==undefined)return;answeredQuestions[qId]=idx;renderSlide();};
+
+let isTransitioning = false;
+
+function buildSlidePanel(html) {
+  const div = document.createElement('div');
+  div.className = 'slide-panel';
+  div.innerHTML = html;
+  return div;
+}
+
+function renderSlide(dir = 0) {
+  const vp = document.getElementById('slideViewport');
+  if (!vp) return;
+  updateNav();
+
+  const newHTML = slides[currentSlide]();
+
+  if (dir === 0 || isTransitioning) {
+    // First render or instant (no animation)
+    vp.innerHTML = '';
+    const panel = buildSlidePanel(newHTML);
+    vp.appendChild(panel);
+    afterSlideRender(panel);
+    return;
+  }
+
+  isTransitioning = true;
+  const oldPanel = vp.querySelector('.slide-panel');
+  const newPanel = buildSlidePanel(newHTML);
+  vp.appendChild(newPanel);
+
+  // Apply directional classes
+  if (dir > 0) {
+    newPanel.classList.add('slide-enter-right');
+    if (oldPanel) oldPanel.classList.add('slide-exit-left');
+  } else {
+    newPanel.classList.add('slide-enter-left');
+    if (oldPanel) oldPanel.classList.add('slide-exit-right');
+  }
+
+  afterSlideRender(newPanel);
+
+  const DURATION = 430;
+  setTimeout(() => {
+    if (oldPanel && oldPanel.parentNode) oldPanel.parentNode.removeChild(oldPanel);
+    newPanel.classList.remove('slide-enter-right','slide-enter-left');
+    isTransitioning = false;
+  }, DURATION);
+}
+
+function afterSlideRender(panel) {
+  // Init sorting game if on that slide
+  if (currentSlide === 12 && !sortingInitialized) { initSortingGame(); sortingInitialized = true; }
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+function updateNav(){
+  const p=document.getElementById('prevBtn'),n=document.getElementById('nextBtn');
+  if(p) { if(currentSlide===0)p.classList.add('hidden-btn');else p.classList.remove('hidden-btn'); }
+  if(n) { if(currentSlide===slides.length-1)n.classList.add('hidden-btn');else n.classList.remove('hidden-btn'); }
+  const pct=Math.round((currentSlide/(slides.length-1))*100);
+  const fill=document.getElementById('progressFill'),text=document.getElementById('progressText');
+  if(fill)fill.style.width=pct+'%';
+  if(text)text.textContent=`${currentSlide+1} / ${slides.length} 🐦`;
+}
+
+function navigate(dir){
+  if (isTransitioning) return;
+  const next=currentSlide+dir;
+  if(next>=0&&next<slides.length){
+    if(next!==12)sortingInitialized=false;
+    currentSlide=next;
+    renderSlide(dir);
+  }
+}
+window.goToSlide=function(i){
+  const dir = i > currentSlide ? 1 : -1;
+  currentSlide=i;
+  if(currentSlide!==12)sortingInitialized=false;
+  renderSlide(dir);
+};
+
+function getAllCards(){return[...correctCards(),...wrongCards()].sort(()=>Math.random()-0.5);}
+function initSortingGame(){sortedCards={correct:[],wrong:[],mixed:getAllCards()};renderSortingGame();}
+function renderSortingGame(){
+  const cl=document.getElementById('correctList'),wl=document.getElementById('wrongList'),mc=document.getElementById('mixedCards');
+  if(!cl||!wl||!mc)return;
+  cl.innerHTML=sortedCards.correct.map((card,i)=>`<div class="sort-card-enter sort-card-tap bg-white p-2 sm:p-3 rounded-lg card-shadow flex items-center gap-2" draggable="true" ondragstart="dragCard(event,'correct',${i})" onclick="moveCard('correct',${i},'mixed')"><span class="text-base sm:text-lg">${card.emoji}</span><span class="text-xs sm:text-sm font-semibold flex-1" style="color:#333;">${card.text}</span><span class="text-xs opacity-50 flex-shrink-0">↩</span></div>`).join('');
+  wl.innerHTML=sortedCards.wrong.map((card,i)=>`<div class="sort-card-enter sort-card-tap bg-white p-2 sm:p-3 rounded-lg card-shadow flex items-center gap-2" draggable="true" ondragstart="dragCard(event,'wrong',${i})" onclick="moveCard('wrong',${i},'mixed')"><span class="text-base sm:text-lg">${card.emoji}</span><span class="text-xs sm:text-sm font-semibold flex-1" style="color:#333;">${card.text}</span><span class="text-xs opacity-50 flex-shrink-0">↩</span></div>`).join('');
+  mc.innerHTML=sortedCards.mixed.map((card,i)=>`<div class="sort-card-enter sort-card-tap p-2.5 sm:p-3 rounded-xl card-shadow font-semibold text-xs sm:text-sm cursor-grab active:cursor-grabbing" draggable="true" ondragstart="dragCard(event,'mixed',${i})" style="background:linear-gradient(135deg,#E3F2FD,#BBDEFB);border:2px solid #42A5F5;color:#1565C0;min-width:110px;max-width:160px;text-align:center;"><div class="text-xl sm:text-2xl mb-1">${card.emoji}</div><div class="text-xs sm:text-sm leading-snug font-bold">${card.text}</div><div class="flex gap-1 mt-2 justify-center"><button onclick="event.stopPropagation();moveCard('mixed',${i},'correct')" class="text-xs px-3 py-1 rounded-full font-bold" style="background:#C8E6C9;color:#2E7D32;min-height:28px;">✓ Đúng</button><button onclick="event.stopPropagation();moveCard('mixed',${i},'wrong')" class="text-xs px-3 py-1 rounded-full font-bold" style="background:#FFCDD2;color:#C62828;min-height:28px;">✗ Sai</button></div></div>`).join('');
+}
+window.dragCard=function(e,from,idx){e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('from',from);e.dataTransfer.setData('idx',idx);};
+window.allowDrop=function(e){e.preventDefault();e.dataTransfer.dropEffect='move';};
+window.dropCard=function(e,to){e.preventDefault();const from=e.dataTransfer.getData('from'),idx=parseInt(e.dataTransfer.getData('idx'));if(from!==to){const card=sortedCards[from][idx];sortedCards[from].splice(idx,1);sortedCards[to].push(card);renderSortingGame();}};
+window.moveCard=function(from,idx,to){const card=sortedCards[from][idx];sortedCards[from].splice(idx,1);sortedCards[to].push(card);renderSortingGame();};
+window.resetSort=function(){sortedCards={correct:[],wrong:[],mixed:getAllCards()};document.getElementById('sortResult').innerHTML='';renderSortingGame();};
+window.checkSort=function(){
+  const ccl=correctCards(),wcl=wrongCards();
+  const ciz=sortedCards.correct.filter(c=>ccl.some(cc=>cc.text===c.text));
+  const wiz=sortedCards.wrong.filter(c=>wcl.some(cc=>cc.text===c.text));
+  let msg='';
+  if(ciz.length===ccl.length&&wiz.length===wcl.length){
+    msg=`<div class="p-3 sm:p-4 rounded-2xl bg-green-50 border-2 border-green-500 animate-bubbleUp"><div class="text-2xl sm:text-3xl mb-2">🎉 Tuyệt vời!</div><div class="font-bold text-base sm:text-lg" style="color:#2E7D32;">Bạn phân loại hoàn toàn chính xác!</div><div class="mt-2 font-semibold text-xs sm:text-sm" style="color:#555;">✅ ${ciz.length} đặc điểm đúng | ❌ ${wiz.length} đặc điểm sai</div></div>`;
+  } else {
+    msg=`<div class="p-3 sm:p-4 rounded-2xl bg-yellow-50 border-2 border-yellow-500 animate-bubbleUp"><div class="text-2xl sm:text-3xl mb-2">🤔 Hãy thử lại!</div><div class="font-bold text-base sm:text-lg" style="color:#F57F17;">Bạn phân loại đúng: ${ciz.length+wiz.length}/${ccl.length+wcl.length}</div><div class="mt-2 text-xs sm:text-sm" style="color:#555;">Quan sát kỹ các đặc điểm của chim hải âu nhé!</div></div>`;
+  }
+  const r=document.getElementById('sortResult');if(r)r.innerHTML=msg;
+};
+
+// Safe SDK init
+try{
+  if(window.elementSdk&&typeof window.elementSdk.init==='function'){
+    window.elementSdk.init({
+      defaultConfig,
+      onConfigChange:async(c)=>{config={...defaultConfig,...c};renderSlide();},
+      mapToCapabilities:(c)=>({
+        recolorables:[
+          {get:()=>c.background_color||defaultConfig.background_color,set:(v)=>{c.background_color=v;window.elementSdk.setConfig({background_color:v})}},
+          {get:()=>c.surface_color||defaultConfig.surface_color,set:(v)=>{c.surface_color=v;window.elementSdk.setConfig({surface_color:v})}},
+          {get:()=>c.text_color||defaultConfig.text_color,set:(v)=>{c.text_color=v;window.elementSdk.setConfig({text_color:v})}},
+          {get:()=>c.primary_action_color||defaultConfig.primary_action_color,set:(v)=>{c.primary_action_color=v;window.elementSdk.setConfig({primary_action_color:v})}},
+          {get:()=>c.secondary_action_color||defaultConfig.secondary_action_color,set:(v)=>{c.secondary_action_color=v;window.elementSdk.setConfig({secondary_action_color:v})}}
+        ],
+        borderables:[],
+        fontEditable:{get:()=>c.font_family||'Baloo 2',set:(v)=>{c.font_family=v;window.elementSdk.setConfig({font_family:v})}},
+        fontSizeable:undefined
+      }),
+      mapToEditPanelValues:(c)=>new Map([["main_title",c.main_title||defaultConfig.main_title],["subtitle",c.subtitle||defaultConfig.subtitle]])
+    });
+  }
+}catch(e){console.log('SDK not available, running standalone');}
+
+window.addEventListener('resize',()=>renderSlide(0));
+renderSlide(0);
+</script>
+ </body>
+</html>
